@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration;
 
-@SpringBootApplication(exclude = {MongoReactiveAutoConfiguration.class})
+@SpringBootApplication
 public class ReactiveMongoApplication {
 
 	public static void main(String[] args) {
