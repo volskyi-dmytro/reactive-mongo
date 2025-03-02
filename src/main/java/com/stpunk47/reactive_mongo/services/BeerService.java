@@ -1,10 +1,13 @@
 package com.stpunk47.reactive_mongo.services;
 
+import com.stpunk47.reactive_mongo.domain.Beer;
 import com.stpunk47.reactive_mongo.model.BeerDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface BeerService {
+
+    Mono<BeerDTO> findFirstByBeerName(String beerName);
 
     Flux<BeerDTO> listBeers();
     Mono<BeerDTO> saveBeer(Mono<BeerDTO> beerDto);
