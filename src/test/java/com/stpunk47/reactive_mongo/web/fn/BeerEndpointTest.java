@@ -1,5 +1,7 @@
 package com.stpunk47.reactive_mongo.web.fn;
 
+import com.stpunk47.reactive_mongo.model.BeerDTO;
+import com.stpunk47.reactive_mongo.services.BeerServiceImplTest;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,8 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -44,4 +48,29 @@ public class BeerEndpointTest {
                 .jsonPath("$.length()").value(greaterThan(1));
     }
 
+    @Test
+    void testCreateBeer() {
+
+        BeerDTO testDto = getSavedTestBeer();
+
+        webTestClient.post().uri(BeerRouterConfig.BEER_PATH)
+                .body(Mono.just(testDto), BeerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isCreated()
+                .expectHeader().exists("location");
+    }
+
+    public BeerDTO getSavedTestBeer(){
+        FluxExchangeResult<BeerDTO> beerDTOFluxExchangeResult = webTestClient.post().uri(BeerRouterConfig.BEER_PATH)
+                .body(Mono.just(BeerServiceImplTest.getTestBeer()), BeerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .returnResult(BeerDTO.class);
+
+        List<String> location = beerDTOFluxExchangeResult.getResponseHeaders().get("Location");
+
+        return webTestClient.get().uri(BeerRouterConfig.BEER_PATH)
+                .exchange().returnResult(BeerDTO.class).getResponseBody().blockFirst();
+    }
 }

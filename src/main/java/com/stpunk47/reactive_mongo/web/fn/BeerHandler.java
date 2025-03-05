@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -14,6 +15,16 @@ import reactor.core.publisher.Mono;
 public class BeerHandler {
 
     private final BeerService beerService;
+
+    public Mono<ServerResponse> createNewBeer(ServerRequest request){
+        return beerService.saveBeer(request.bodyToMono(BeerDTO.class))
+                .flatMap(beerDTO ->
+                    ServerResponse.created(UriComponentsBuilder
+                                    .fromPath(BeerRouterConfig.BEER_PATH_ID)
+                                    .build(beerDTO.getId()))
+                            .build());
+
+    }
 
     public Mono<ServerResponse> getBeerById(ServerRequest request) {
         return ServerResponse.ok()
