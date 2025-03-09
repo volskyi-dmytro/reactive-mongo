@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -32,8 +33,16 @@ public class BeerHandler {
     }
 
     public Mono<ServerResponse> listBeers(ServerRequest request) {
+        Flux<BeerDTO> flux;
+
+        if (request.queryParam("beerStyle").isPresent()){
+            flux = beerService.findByBeerStyle(request.queryParam("beerStyle").get());
+        } else {
+            flux = beerService.listBeers();
+        }
+
         return ServerResponse.ok()
-                .body(beerService.listBeers(), BeerDTO.class);
+                .body(flux, BeerDTO.class);
     }
 
 }
