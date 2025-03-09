@@ -33,6 +33,22 @@ public class BeerHandler {
         }
     }
 
+    public Mono<ServerResponse> deleteBeerById(ServerRequest request){
+        return beerService.getById(request.pathVariable("beerId"))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .flatMap(beerDTO -> beerService.deleteBeerById(beerDTO.getId()))
+                .then(ServerResponse.noContent().build());
+    }
+
+    public Mono<ServerResponse> patchBeerById(ServerRequest request){
+        return request.bodyToMono(BeerDTO.class)
+                .doOnNext(this::validate)
+                .flatMap(beerDTO -> beerService
+                        .patchBeer(request.pathVariable("beerId"),beerDTO))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .flatMap(savedDto -> ServerResponse.noContent().build());
+    }
+
     public Mono<ServerResponse> updateBeerById(ServerRequest request) {
         return request.bodyToMono(BeerDTO.class)
                 .doOnNext(this::validate)
